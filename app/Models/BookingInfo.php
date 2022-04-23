@@ -42,29 +42,90 @@ class BookingInfo
         $this->conn = $conn;
     }
 
-    public function getBooking()
+    /**
+     * Get list of booking
+     *
+     * @auhtor Ankit Patel
+     * @return array
+     */
+    public function list(): array
+    {
+        $sql = "SELECT
+                  (
+                    CASE WHEN bi_type = 'morning_half_day' THEN 'Half Day(Morning)' WHEN bi_type = 'evening_half_day' THEN 'Half Day(Evening)' ELSE 'Full Day'
+                  END
+                ) slot_type,
+                DATE_FORMAT(bi_booking_date,
+                '%d-%m-%Y') AS booking_date,
+                u_name,
+                vi_name
+                FROM
+                  $this->_table
+                JOIN
+                  users ON u_id = bi_u_id
+                JOIN
+                  vehicles_info ON vi_id = bi_vi_id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(1);
+    }
+
+    /**
+     * Insert booking information
+     *
+     * @auhtor Ankit Patel
+     * @return int
+     */
+    public function insert(): int
+    {
+        $sql = "INSERT INTO  $this->_table (      
+        `bi_u_id`,
+        `bi_vi_id`,
+        `bi_type`,
+        `bi_booking_date`,
+        `bi_created_at`,
+        `bi_user_agent`,
+        `bi_from_user_ip`
+        ) VALUES (?,?,?,?,?,?,?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('iisssss',
+            $this->bi_u_id,
+            $this->bi_vi_id,
+            $this->bi_type,
+            $this->bi_booking_date,
+            $this->bi_created_at,
+            $this->bi_user_agent,
+            $this->bi_from_user_ip);
+        $stmt->execute();
+        return $stmt->insert_id;
+    }
+
+    /**
+     * Insert booking information
+     *
+     * @auhtor Ankit Patel
+     * @param  int     $vehicleId
+     * @param  string  $date
+     * @param  string  $slotType
+     * @return int
+     */
+    public function isVehicleBooked(int $vehicleId,string $date,string $slotType): int
     {
         $sql = "SELECT 
-                `bi_type`,
-                `bi_start_date`,
-                `bi_end_date`,
-                `u_name`,
-                `vi_name`,
-                `bi_created_at`     
+                 COUNT(*) AS bookedCount 
                 FROM
-                  $this->_table      
-                LEFT JOIN users ON u.u_id = bi_u_id 
-                LEFT JOIN vehicles_info ON vi_id = bi_vi_id               
-                WHERE bi_u_id = ?
+                  $this->_table
+                WHERE bi_vi_id = ?
+                AND bi_booking_date = ?
+                AND bi_type = ?
                 ";
-        if (!$stmt = $this->conn->prepare($sql)) {
-            throw new Exception($this->conn->error);
-        }
-        $stmt->bind_param('i', $this->bi_u_id);
-        if (!$stmt->execute()) {
-            throw new Exception($stmt->error);
-        }
-        $fetchedData = $stmt->get_result()->fetch_all(1);
-        return $fetchedData;
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('iss',
+            $vehicleId,
+            $date,
+            $slotType
+        );
+        $stmt->execute();
+        return $stmt->get_result()->fetch_object()->bookedCount;
     }
 }

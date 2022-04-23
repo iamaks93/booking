@@ -72,11 +72,11 @@ class Helper
      */
     public static function makeDropdown(array $arrayOfOptions, string $attributeName): string
     {
-        $options = '<option>Select Option</option>';
+        $options = '<option value="">Select Option</option>';
         foreach ($arrayOfOptions as $singleOption) {
             $options .= "<option value='{$singleOption['id']}'>".$singleOption['val']."</option>";
         }
-        return "<select class='form-select' id='ddlb_$attributeName' name ='ddlb_$attributeName'>
+        return "<select class='form-select' id='ddlb_$attributeName' name ='ddlb_$attributeName' required>
                     $options
                 </select>";
     }
