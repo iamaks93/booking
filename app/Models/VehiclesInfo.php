@@ -11,7 +11,7 @@
  * @author     Ankit Patel
  */
 
-namespace PharmaAppV2\FridgeLog;
+namespace App\Models;
 
 use \Exception;
 
@@ -21,12 +21,12 @@ use \Exception;
  * @author  Ankit Patel
  * @package App\Models
  */
-class Vehicles
+class VehiclesInfo
 {
     /**
      * @var string
      */
-    private $_table = 'vehicles';
+    private $_table = 'vehicles_info';
     /**
      * @var
      */
@@ -39,5 +39,24 @@ class Vehicles
     public function __construct($conn)
     {
         $this->conn = $conn;
+    }
+
+    /**
+     * Get vehicle list
+     *
+     * @auhtor Ankit Patel
+     * @return array
+     */
+    public function getList(): array
+    {
+        $sql = "SELECT 
+                   vi_id AS `id`,
+                   vi_name AS `val`   
+                FROM
+                  $this->_table      
+                ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(1);
     }
 }

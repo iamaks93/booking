@@ -11,8 +11,12 @@
 
 namespace App\Controllers;
 
-use Database;
+
+use App\Models\Users;
 use Exception;
+use App\Controllers\DB;
+use App\Helpers\Helper;
+use App\Models\VehiclesInfo;
 
 /**
  * Class BookingInfoController
@@ -23,7 +27,7 @@ use Exception;
 class BookingInfoController
 {
     /**
-     * @var Database
+     * @var DB
      */
     public $objConn;
 
@@ -34,10 +38,21 @@ class BookingInfoController
      */
     public function __construct()
     {
-        $this->objConn = new Database();
+        $this->objConn = new DB();
     }
 
-    public function view() {
-
+    /**
+     * Get view information
+     *
+     * @auhtor Akshay Mahajan
+     * @return array
+     */
+    public function view(): array
+    {
+        $objConn = $this->objConn->connect();
+        $vehicleList = Helper::makeDropdown((new VehiclesInfo($objConn))->getList(),'vehicle');
+        $userList = Helper::makeDropdown((new Users($objConn))->getList(),'users');
+        $objConn->close();
+        return compact('vehicleList', 'userList');
     }
 }

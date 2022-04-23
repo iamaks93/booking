@@ -41,4 +41,23 @@ class Users
     {
         $this->conn = $conn;
     }
+
+    /**
+     * Get users list
+     *
+     * @auhtor Ankit Patel
+     * @return array
+     */
+    public function getList(): array
+    {
+        $sql = "SELECT 
+                   u_id AS `id`,
+                   u_name AS `val`   
+                FROM
+                  $this->_table      
+                ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(1);
+    }
 }

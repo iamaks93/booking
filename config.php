@@ -6,7 +6,7 @@ define('DB',[
     'HOST' => 'localhost',
     'USER' => 'root',
     'PASS' => 'root',
-    'DB' => 'cd',
+    'DB' => 'vehicle_booking',
     'CHAR_SET' => 'utf8',
 ]);
 //Domain URL
